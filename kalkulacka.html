@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>EMK ELEKTRO | Professional Toolbox</title>
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='3' y='2' width='18' height='20' rx='3' fill='%23ca1e1d'/%3E%3Crect x='6' y='5' width='12' height='5' rx='1' fill='%23ffffff' opacity='0.2'/%3E%3Ccircle cx='7.5' cy='14' r='1.5' fill='%23ffffff'/%3E%3Ccircle cx='12' cy='14' r='1.5' fill='%23ffffff'/%3E%3Ccircle cx='16.5' cy='14' r='1.5' fill='%23ffffff'/%3E%3Ccircle cx='7.5' cy='18' r='1.5' fill='%23ffffff'/%3E%3Ccircle cx='12' cy='18' r='1.5' fill='%23ffffff'/%3E%3Crect x='15' y='17.2' width='3' height='1.5' rx='0.5' fill='%23ffffff'/%3E%3C/svg%3E">
+
+    <style>
+        :root {
+            /* Přesná EMK červená z loga */
+            --primary: #ca1e1d;
+            --primary-dark: #a11413;
+            --accent: #10b981;
+            --bg: #fdfdfd;
+            --card: #ffffff;
+            --text: #1a1a1a;
+            --text-sec: #6b6b6b;
+            --border: #e8e8e8;
+            --input-bg: #f7f7f7;
+            --calc-btn: #eaeaea;
+            --calc-btn-hover: #dcdcdc;
+            --logo-text: #ca1e1d;
+            --danger-bg: rgba(202, 30, 29, 0.08);
+        }
+        [data-theme="dark"] {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #f5f5f5;
+            --text-sec: #a5a5a5;
+            --border: #2c2c2c;
+            --input-bg: #161616;
+            --calc-btn: #2c2c2c;
+            --calc-btn-hover: #3c3c3c;
+            --primary-dark: #b01716;
+            color-scheme: dark;
+        }
+        * { box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 30px 20px; display: flex; flex-direction: column; align-items: center; transition: background 0.3s; }
+        button, input, select { font-family: inherit; }
+        :focus-visible { outline: 3px solid rgba(202, 30, 29, 0.55); outline-offset: 2px; }
+
+        .wrapper { display: flex; gap: 25px; flex-wrap: wrap; justify-content: center; max-width: 1100px; width: 100%; }
+        .container { flex: 1; min-width: min(340px, 100%); max-width: 420px; display: flex; flex-direction: column; }
+
+        .card {
+            background: var(--card); border-radius: 20px; padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            border: 1px solid var(--border); flex: 1; display: flex; flex-direction: column;
+        }
+
+        /* CSS replika oficiálního EMK ELEKTRO loga */
+        .logo-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 18px; margin-bottom: 20px; border-bottom: 2px solid var(--border); user-select: none; }
+        .logo-emk { font-size: 3.4rem; font-weight: 900; line-height: 0.85; color: var(--logo-text); letter-spacing: -2px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        .logo-elektro { font-size: 1.25rem; font-weight: 800; line-height: 1; color: var(--logo-text); letter-spacing: 1.8px; margin-top: 2px; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        .logo-emk.small { font-size: 1.8rem; letter-spacing: -0.5px; }
+        .logo-elektro.small { font-size: 0.85rem; letter-spacing: 2.5px; }
+
+        .input-row { display: flex; gap: 12px; }
+        .input-group { margin-bottom: 14px; flex: 1; }
+        label, .lbl { font-size: 0.7rem; font-weight: 700; color: var(--text-sec); display: block; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+        input[type="text"], input[type="number"], select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 1rem; font-weight: 600; transition: all 0.2s; }
+        input:focus, select:focus { border-color: var(--primary); background: var(--card); outline: none; box-shadow: 0 0 0 3px rgba(202, 30, 29, 0.15); }
+        input.invalid { border-color: var(--primary); background: var(--danger-bg); }
+        .field-hint { font-size: 0.7rem; color: var(--primary); font-weight: 600; margin: -8px 0 12px; min-height: 0; }
+        .field-hint:empty { display: none; }
+
+        /* Rychlá tlačítka pro marži */
+        .margin-presets { display: flex; gap: 6px; margin-top: -4px; margin-bottom: 15px; flex-wrap: wrap; }
+        .preset-btn { flex: 1; min-width: 45px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.15s; text-align: center; }
+        .preset-btn:hover { background: var(--calc-btn-hover); border-color: var(--text-sec); }
+        .preset-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .check-row { display: flex; align-items: center; gap: 10px; font-size: 0.8rem; margin-bottom: 16px; cursor: pointer; font-weight: 600; text-transform: none; letter-spacing: 0; color: var(--text); }
+        .check-row input { width: 18px; height: 18px; margin: 0; accent-color: var(--primary); }
+        .dph-select { width: auto; padding: 4px 8px; font-size: 0.8rem; border-radius: 6px; margin-left: auto; }
+
+        /* Displej pomocné kalkulačky */
+        .display-box { background: var(--input-bg); padding: 18px; text-align: right; border-radius: 12px; min-height: 65px; border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; }
+        .calc-display { width: 100%; font: inherit; color: inherit; cursor: pointer; transition: all 0.2s; position: relative; overflow: hidden; }
+        .calc-display:hover { background: rgba(202, 30, 29, 0.05); border-color: var(--primary); }
+        .calc-display:hover #calc-text { color: var(--primary); }
+        #calc-text { display: block; font-size: 1.6rem; font-weight: 700; word-break: break-all; }
+        #calc-live-result { display: block; font-size: 1.1rem; color: var(--text-sec); font-weight: 600; margin-top: 2px; min-height: 1.4em; }
+        .calc-display .hint { font-size: 0.65rem; color: var(--primary); display: block; font-weight: 600; text-transform: uppercase; margin-top: 4px; opacity: 0; transition: 0.2s; text-align: center; }
+        .calc-display:hover .hint, .calc-display:focus-visible .hint { opacity: 1; }
+        @media (hover: none) { .calc-display .hint { opacity: 1; } }
+
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex: 1; margin-top: 14px; }
+        .c-btn { border: none; border-radius: 10px; font-size: 1.15rem; font-weight: 700; cursor: pointer; background: var(--calc-btn); color: var(--text); transition: all 0.15s; display: flex; align-items: center; justify-content: center; min-height: 48px; }
+        .c-btn:hover { background: var(--calc-btn-hover); }
+        .c-btn.op { background: var(--primary); color: white; }
+        .c-btn.op:hover { background: var(--primary-dark); }
+        .c-btn.equal { background: var(--text); color: var(--card); grid-column: span 4; }
+        .c-btn.equal:hover { opacity: 0.9; }
+        .c-btn:active, .c-btn.press { transform: scale(0.95); }
+
+        /* Výsledky */
+        .result-container { margin-top: auto; padding-top: 15px; }
+        .result-box { background: var(--input-bg); border-radius: 12px; padding: 15px; text-align: center; border: 1px solid var(--border); }
+        .clickable-price { background: transparent; border: none; color: inherit; font: inherit; width: 100%; cursor: pointer; transition: all 0.15s ease; border-radius: 8px; }
+        .clickable-price:hover { background: rgba(202, 30, 29, 0.06); }
+        .clickable-price:active { transform: scale(0.98); }
+        .main-price { font-size: 1.9rem; font-weight: 900; color: var(--primary); display: block; margin: 2px 0; padding: 2px; }
+        .main-price.na { color: var(--text-sec); }
+
+        .sub-results { display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; gap: 4px; }
+        .sub-item { flex: 1; text-align: center; padding: 4px 2px; }
+        .sub-item + .sub-item { border-left: 1px solid var(--border); border-radius: 0; }
+        .sub-item .lbl { font-size: 0.55rem; margin-bottom: 2px; cursor: pointer; }
+        .sub-item .val { font-size: 0.9rem; font-weight: 700; color: var(--text); display: block; }
+        .sub-item .val.neon-highlight { color: var(--primary); }
+
+        .meta-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); font-size: 0.72rem; color: var(--text-sec); text-align: left; }
+        .meta-row > div { display: flex; justify-content: space-between; gap: 6px; }
+        .meta-row b { color: var(--text); font-weight: 700; white-space: nowrap; }
+
+        .currency-switcher { display: flex; background: var(--input-bg); padding: 4px; border-radius: 10px; margin-bottom: 15px; gap: 4px; border: 1px solid var(--border); }
+        .seg-btn { flex: 1; border: none; padding: 10px; border-radius: 7px; background: transparent; color: var(--text-sec); font-weight: 700; cursor: pointer; font-size: 0.8rem; transition: all 0.2s; }
+        .seg-btn.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(202, 30, 29, 0.2); }
+
+        .action-btn { width: 100%; padding: 14px; border: none; border-radius: 10px; background: var(--primary); color: white; font-weight: 700; cursor: pointer; margin-top: 12px; font-size: 0.9rem; transition: background 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .action-btn:hover { background: var(--primary-dark); }
+
+        /* Historie */
+        .history-section { max-width: 865px; width: 100%; margin-top: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
+        .history-box { background: var(--card); border-radius: 16px; border: 1px solid var(--border); padding: 15px; max-height: 260px; overflow-y: auto; }
+        .history-title { font-size: 0.75rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; border-bottom: 1px solid var(--border); padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .history-actions { display: flex; gap: 12px; }
+        .link-btn { background: transparent; border: none; color: var(--text-sec); cursor: pointer; font-size: 0.7rem; font-weight: bold; text-transform: uppercase; padding: 2px 0; }
+        .link-btn:hover { color: var(--primary); }
+        .h-line { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px dashed var(--border); font-size: 0.8rem; align-items: center; }
+        .h-line:last-child { border: none; }
+        .h-line b { color: var(--primary); }
+        .h-main { flex: 1; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; background: transparent; border: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; padding: 2px 4px; border-radius: 6px; }
+        .h-main:hover { background: rgba(202, 30, 29, 0.06); }
+        .h-del { background: transparent; border: none; color: var(--text-sec); cursor: pointer; font-size: 1rem; line-height: 1; padding: 4px 6px; border-radius: 6px; }
+        .h-del:hover { color: var(--primary); background: var(--danger-bg); }
+        .h-empty { color: var(--text-sec); font-size: 0.8rem; text-align: center; padding: 14px 0; }
+
+        .theme-toggle { position: fixed; bottom: 20px; right: 20px; cursor: pointer; font-size: 20px; z-index: 100; background: var(--card); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 1px solid var(--border); user-select: none; }
+
+        .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); background: var(--text); color: var(--card); padding: 10px 18px; border-radius: 999px; font-size: 0.8rem; font-weight: 700; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 200; }
+        .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+        @media (max-width: 768px) { .history-section { grid-template-columns: 1fr; } }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+    </style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="t-icon" onclick="toggleTheme()" aria-label="Přepnout světlý/tmavý režim">🌙</button>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="wrapper">
+    <div class="container">
+        <div class="card">
+            <div class="logo-container">
+                <div class="logo-emk">EMK</div>
+                <div class="logo-elektro">ELEKTRO</div>
+            </div>
+
+            <div class="currency-switcher" role="group" aria-label="Měna nákupu">
+                <button type="button" class="seg-btn active" id="btn-CZK" onclick="setMena('CZK')">Kč</button>
+                <button type="button" class="seg-btn" id="btn-EUR" onclick="setMena('EUR')">EUR</button>
+                <button type="button" class="seg-btn" id="btn-USD" onclick="setMena('USD')">USD</button>
+            </div>
+
+            <div class="input-row">
+                <div class="input-group" style="flex: 2;">
+                    <label for="nakupka" id="labelNakup">Nákup celkem (CZK)</label>
+                    <input type="text" inputmode="decimal" id="nakupka" placeholder="0.00" autocomplete="off" oninput="osetriDesetinnouCarku(this); vypocitej();">
+                </div>
+                <div class="input-group" style="flex: 1;">
+                    <label for="kusy">Počet ks</label>
+                    <input type="number" id="kusy" value="1" min="1" step="1" oninput="vypocitej()">
+                </div>
+            </div>
+
+            <div id="rate-info" style="display:none;" class="input-group">
+                <label for="vlastni-kurz">Pevný kurz (Kč)</label>
+                <input type="text" inputmode="decimal" id="vlastni-kurz" autocomplete="off" oninput="osetriDesetinnouCarku(this); zmenaKurzu();">
+            </div>
+
+            <div class="currency-switcher" role="group" aria-label="Způsob výpočtu zisku">
+                <button type="button" class="seg-btn active" id="rezim-prirazka" onclick="setRezim('prirazka')" title="Zisk = % z nákupní ceny">Přirážka z nákupu</button>
+                <button type="button" class="seg-btn" id="rezim-marze" onclick="setRezim('marze')" title="Zisk = % z prodejní ceny">Marže z prodeje</button>
+            </div>
+
+            <div class="input-group">
+                <label for="marze" id="labelMarze">Přirážka (%)</label>
+                <input type="text" inputmode="decimal" id="marze" value="3.5" autocomplete="off" oninput="osetriDesetinnouCarku(this); zmenaMarze();">
+            </div>
+            <div class="field-hint" id="marze-hint" role="alert"></div>
+
+            <div class="margin-presets" id="presets">
+                <button type="button" class="preset-btn" data-v="3.5" onclick="setMarzePreset(3.5)">3.5 %</button>
+                <button type="button" class="preset-btn" data-v="5" onclick="setMarzePreset(5)">5 %</button>
+                <button type="button" class="preset-btn" data-v="7" onclick="setMarzePreset(7)">7 %</button>
+                <button type="button" class="preset-btn" data-v="10" onclick="setMarzePreset(10)">10 %</button>
+                <button type="button" class="preset-btn" data-v="15" onclick="setMarzePreset(15)">15 %</button>
+            </div>
+
+            <label class="check-row">
+                <input type="checkbox" id="vstupSDPH" onchange="zmenaDph()"> Fakturovaná cena je s DPH
+                <select id="dphSazba" class="dph-select" onchange="zmenaDph()" aria-label="Sazba DPH">
+                    <option value="21">21 %</option>
+                    <option value="12">12 %</option>
+                    <option value="0">0 %</option>
+                </select>
+            </label>
+
+            <div class="result-container">
+                <div class="result-box" aria-live="polite">
+                    <span class="lbl" style="font-size: 0.65rem;" id="labelResultBezDPH">PRODEJNÍ CENA ZA 1 KUS (BEZ DPH)</span>
+
+                    <button type="button" class="clickable-price" onclick="kopiruj('resBezDPH')" title="Kliknutím zkopírujete">
+                        <span id="resBezDPH" class="main-price">0,00 Kč</span>
+                    </button>
+
+                    <div class="sub-results">
+                        <button type="button" class="sub-item clickable-price" onclick="kopiruj('resSDPH')">
+                            <span class="lbl" id="lblSDPH">ZA 1 KS S DPH</span>
+                            <span class="val" id="resSDPH">0,00 Kč</span>
+                        </button>
+                        <button type="button" class="sub-item clickable-price" onclick="kopiruj('resCelkem')">
+                            <span class="lbl">PRODEJ CELKEM</span>
+                            <span class="val" id="resCelkem" style="font-weight:800;">0,00 Kč</span>
+                        </button>
+                        <button type="button" class="sub-item clickable-price" onclick="kopiruj('resZisk')">
+                            <span class="lbl">CELKOVÝ ZISK</span>
+                            <span class="val neon-highlight" id="resZisk">0,00 Kč</span>
+                        </button>
+                    </div>
+
+                    <div class="meta-row">
+                        <div>Nákup za 1 ks bez DPH <b id="metaNakupKus">–</b></div>
+                        <div>Zisk za 1 ks <b id="metaZiskKus">–</b></div>
+                        <div id="metaAltLabel">Odpovídající marže <b id="metaAlt">–</b></div>
+                        <div>Nákup celkem v Kč <b id="metaNakupKc">–</b></div>
+                    </div>
+                </div>
+                <button type="button" class="action-btn" onclick="ulozDoObchodniHistorie()">Uložit kalkulaci</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <div class="logo-container">
+                <div class="logo-emk small">POMOCNÉ</div>
+                <div class="logo-elektro small">VÝPOČTY</div>
+            </div>
+
+            <button type="button" class="display-box calc-display" id="display" onclick="copyToPurchase()" title="Kliknutím vložíte do nákupní ceny">
+                <span id="calc-text">0</span>
+                <span id="calc-live-result"> </span>
+                <span class="hint">Klikni pro přenos do nákupu ↵</span>
+            </button>
+
+            <div class="calc-grid" id="calc-grid">
+                <button type="button" class="c-btn" data-key="Escape" aria-label="Vymazat vše">AC</button>
+                <button type="button" class="c-btn" data-key="Backspace" aria-label="Smazat poslední znak">⌫</button>
+                <button type="button" class="c-btn" data-key="(">(</button>
+                <button type="button" class="c-btn" data-key=")">)</button>
+
+                <button type="button" class="c-btn" data-key="7">7</button>
+                <button type="button" class="c-btn" data-key="8">8</button>
+                <button type="button" class="c-btn" data-key="9">9</button>
+                <button type="button" class="c-btn op" data-key="/" aria-label="Děleno">÷</button>
+
+                <button type="button" class="c-btn" data-key="4">4</button>
+                <button type="button" class="c-btn" data-key="5">5</button>
+                <button type="button" class="c-btn" data-key="6">6</button>
+                <button type="button" class="c-btn op" data-key="*" aria-label="Krát">×</button>
+
+                <button type="button" class="c-btn" data-key="1">1</button>
+                <button type="button" class="c-btn" data-key="2">2</button>
+                <button type="button" class="c-btn" data-key="3">3</button>
+                <button type="button" class="c-btn op" data-key="-" aria-label="Minus">−</button>
+
+                <button type="button" class="c-btn" data-key="0">0</button>
+                <button type="button" class="c-btn" data-key="." aria-label="Desetinná čárka">,</button>
+                <button type="button" class="c-btn" data-key="%" aria-label="Procento">%</button>
+                <button type="button" class="c-btn op" data-key="+" aria-label="Plus">+</button>
+
+                <button type="button" class="c-btn equal" data-key="Enter" aria-label="Vypočítat">=</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="history-section">
+    <div class="history-box">
+        <div class="history-title">
+            <span>Historie nacenění položek</span>
+            <span class="history-actions">
+                <button type="button" class="link-btn" onclick="exportCsv()">Export CSV</button>
+                <button type="button" class="link-btn" onclick="clearHistory('obchodni')">Smazat</button>
+            </span>
+        </div>
+        <div id="obchodniHistorie"></div>
+    </div>
+    <div class="history-box">
+        <div class="history-title">
+            <span>Páska mezivýpočtů</span>
+            <button type="button" class="link-btn" onclick="clearHistory('calc')">Smazat</button>
+        </div>
+        <div id="calcHistorie"></div>
+    </div>
+</div>
+
+<script>
+    /* ================= STAV A ÚLOŽIŠTĚ ================= */
+    const MAX_HISTORY = 100;
+    const store = {
+        get(key, fallback) {
+            try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); }
+            catch (e) { return fallback; }
+        },
+        set(key, value) {
+            try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* úložiště nemusí být dostupné */ }
+        }
+    };
+
+    const DEFAULTS = { mena: 'CZK', kurzy: { EUR: 26, USD: 25 }, marze: 3.5, rezim: 'prirazka', dph: 21, sDph: false };
+    const settings = Object.assign({}, DEFAULTS, store.get('emk_v2_settings', {}));
+    settings.kurzy = Object.assign({}, DEFAULTS.kurzy, settings.kurzy);
+
+    let obchodniHistorie = store.get('emk_v2_obchodni', []);
+    let calcHistorie = store.get('emk_v2_calc', []);
+    let posledniVypocet = null;
+
+    const $ = (id) => document.getElementById(id);
+    const ulozNastaveni = () => store.set('emk_v2_settings', settings);
+
+    /* ================= FORMÁTOVÁNÍ ================= */
+    const SYMBOLY = { CZK: ' Kč', EUR: ' €', USD: ' $' };
+
+    function formatCena(hodnota, mena = 'CZK') {
+        return hodnota.toLocaleString('cs-CZ', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + (SYMBOLY[mena] || '');
+    }
+    function formatCislo(hodnota) {
+        return hodnota.toLocaleString('cs-CZ', { maximumFractionDigits: 4 });
+    }
+    const csvCislo = (v) => v.toFixed(2).replace('.', ',');
+
+    function toast(zprava) {
+        const t = $('toast');
+        t.textContent = zprava;
+        t.classList.add('show');
+        clearTimeout(toast.timer);
+        toast.timer = setTimeout(() => t.classList.remove('show'), 1400);
+    }
+
+    /* ================= SCHRÁNKA ================= */
+    function kopiruj(elementId) {
+        const el = $(elementId);
+        const raw = parseFloat(el.dataset.raw);
+        if (isNaN(raw)) return;
+        const text = csvCislo(raw);
+
+        const hotovo = () => toast('Zkopírováno: ' + text);
+        const nouzove = () => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.cssText = 'position:fixed;opacity:0;';
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); hotovo(); } catch (e) { toast('Kopírování se nepodařilo'); }
+            ta.remove();
+        };
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(hotovo).catch(nouzove);
+        } else {
+            nouzove();
+        }
+    }
+
+    /* ================= VSTUPY ================= */
+    function osetriDesetinnouCarku(input) {
+        const pozice = input.selectionStart;
+        const puvodniDelka = input.value.length;
+
+        let nova = input.value.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+        const body = nova.split('.');
+        if (body.length > 2) nova = body[0] + '.' + body.slice(1).join('');
+        input.value = nova;
+
+        const posun = pozice + (input.value.length - puvodniDelka);
+        try { input.setSelectionRange(posun, posun); } catch (e) { /* např. type=number */ }
+    }
+
+    const cislo = (id) => parseFloat($(id).value) || 0;
+
+    function setMena(m) {
+        settings.mena = m;
+        document.querySelectorAll('#btn-CZK, #btn-EUR, #btn-USD').forEach(b => b.classList.remove('active'));
+        $('btn-' + m).classList.add('active');
+        $('labelNakup').textContent = `Nákup celkem (${m})`;
+
+        const rCont = $('rate-info');
+        if (m !== 'CZK') {
+            rCont.style.display = 'block';
+            $('vlastni-kurz').value = settings.kurzy[m];
+        } else {
+            rCont.style.display = 'none';
+        }
+        ulozNastaveni();
+        vypocitej();
+    }
+
+    function zmenaKurzu() {
+        const k = cislo('vlastni-kurz');
+        if (settings.mena !== 'CZK' && k > 0) {
+            settings.kurzy[settings.mena] = k;
+            ulozNastaveni();
+        }
+        vypocitej();
+    }
+
+    function setRezim(r) {
+        settings.rezim = r;
+        $('rezim-prirazka').classList.toggle('active', r === 'prirazka');
+        $('rezim-marze').classList.toggle('active', r === 'marze');
+        $('labelMarze').textContent = r === 'marze' ? 'Marže z prodeje (%)' : 'Přirážka z nákupu (%)';
+        ulozNastaveni();
+        vypocitej();
+    }
+
+    function setMarzePreset(hodnota) {
+        $('marze').value = hodnota;
+        zmenaMarze();
+    }
+
+    function zmenaMarze() {
+        const m = parseFloat($('marze').value);
+        if (!isNaN(m)) settings.marze = m;
+        ulozNastaveni();
+        aktualizujAktivniPreset();
+        vypocitej();
+    }
+
+    function aktualizujAktivniPreset() {
+        const m = parseFloat($('marze').value);
+        document.querySelectorAll('.preset-btn').forEach(b => {
+            b.classList.toggle('active', parseFloat(b.dataset.v) === m);
+        });
+    }
+
+    function zmenaDph() {
+        settings.sDph = $('vstupSDPH').checked;
+        settings.dph = parseFloat($('dphSazba').value);
+        ulozNastaveni();
+        vypocitej();
+    }
+
+    /* ================= HLAVNÍ VÝPOČET ================= */
+    function spocitej(vstup) {
+        const { nakup, kusy, kurz, marze, rezim, dph, sDph } = vstup;
+        const dphK = 1 + dph / 100;
+
+        const nakupKc = nakup * kurz;
+        const nakupBezDph = sDph ? nakupKc / dphK : nakupKc;
+
+        let prodejBezDph;
+        if (rezim === 'marze') {
+            if (marze >= 100) return null;
+            prodejBezDph = nakupBezDph / (1 - marze / 100);
+        } else {
+            prodejBezDph = nakupBezDph * (1 + marze / 100);
+        }
+        const zisk = prodejBezDph - nakupBezDph;
+
+        return {
+            nakupKc,
+            nakupBezDph,
+            prodejBezDph,
+            zisk,
+            nakupKus: nakupBezDph / kusy,
+            bezDphKus: prodejBezDph / kusy,
+            sDphKus: (prodejBezDph / kusy) * dphK,
+            ziskKus: zisk / kusy,
+            // opačná metrika: k přirážce se ukáže marže a naopak
+            alt: rezim === 'marze'
+                ? (nakupBezDph > 0 ? (zisk / nakupBezDph) * 100 : 0)
+                : (prodejBezDph > 0 ? (zisk / prodejBezDph) * 100 : 0)
+        };
+    }
+
+    function aktualniVstup() {
+        const kurzPole = cislo('vlastni-kurz');
+        return {
+            nakup: cislo('nakupka'),
+            kusy: Math.max(1, Math.floor(cislo('kusy')) || 1),
+            kurz: settings.mena === 'CZK' ? 1 : (kurzPole > 0 ? kurzPole : settings.kurzy[settings.mena]),
+            marze: cislo('marze'),
+            rezim: settings.rezim,
+            dph: settings.dph,
+            sDph: settings.sDph,
+            mena: settings.mena
+        };
+    }
+
+    function zobraz(id, hodnota, formatovac) {
+        const el = $(id);
+        if (hodnota === null) {
+            el.textContent = '—';
+            delete el.dataset.raw;
+        } else {
+            el.textContent = formatovac(hodnota);
+            el.dataset.raw = hodnota;
+        }
+        el.classList.toggle('na', hodnota === null);
+    }
+
+    function vypocitej() {
+        const vstup = aktualniVstup();
+        const r = spocitej(vstup);
+        const pole = $('marze');
+        const spatne = r === null;
+
+        pole.classList.toggle('invalid', spatne);
+        $('marze-hint').textContent = spatne ? 'Marže z prodeje musí být menší než 100 %.' : '';
+        $('lblSDPH').textContent = `ZA 1 KS S DPH (${vstup.dph} %)`;
+        $('metaAltLabel').firstChild.textContent = vstup.rezim === 'marze' ? 'Odpovídající přirážka ' : 'Odpovídající marže ';
+
+        posledniVypocet = r ? { vstup, r } : null;
+
+        const kc = (v) => formatCena(v, 'CZK');
+        zobraz('resBezDPH', r && r.bezDphKus, kc);
+        zobraz('resSDPH', r && r.sDphKus, kc);
+        zobraz('resCelkem', r && r.prodejBezDph, kc);
+        zobraz('resZisk', r && r.zisk, kc);
+        zobraz('metaNakupKus', r && r.nakupKus, kc);
+        zobraz('metaZiskKus', r && r.ziskKus, kc);
+        zobraz('metaNakupKc', r && r.nakupKc, kc);
+        zobraz('metaAlt', r && r.alt, (v) => formatCislo(v) + ' %');
+        // metaAlt nesmí být kopírovatelná číslem v Kč – jen informativní
+        delete $('metaAlt').dataset.raw;
+    }
+
+    /* ================= HISTORIE NACENĚNÍ ================= */
+    function ulozDoObchodniHistorie() {
+        if (!posledniVypocet || posledniVypocet.vstup.nakup <= 0) {
+            toast('Zadejte nákupní cenu');
+            return;
+        }
+        const { vstup, r } = posledniVypocet;
+        obchodniHistorie.unshift({
+            t: Date.now(),
+            nakup: vstup.nakup, mena: vstup.mena, kurz: vstup.kurz, kusy: vstup.kusy,
+            marze: vstup.marze, rezim: vstup.rezim, dph: vstup.dph, sDph: vstup.sDph,
+            bezDphKus: r.bezDphKus, sDphKus: r.sDphKus, celkem: r.prodejBezDph, zisk: r.zisk
+        });
+        obchodniHistorie = obchodniHistorie.slice(0, MAX_HISTORY);
+        store.set('emk_v2_obchodni', obchodniHistorie);
+        renderObchodni();
+        toast('Kalkulace uložena');
+    }
+
+    function nactiZaznam(index) {
+        const z = obchodniHistorie[index];
+        if (!z) return;
+        settings.kurzy = Object.assign({}, settings.kurzy, z.mena !== 'CZK' ? { [z.mena]: z.kurz } : {});
+        settings.marze = z.marze;
+        settings.dph = z.dph;
+        settings.sDph = z.sDph;
+        $('nakupka').value = z.nakup;
+        $('kusy').value = z.kusy;
+        $('marze').value = z.marze;
+        $('dphSazba').value = String(z.dph);
+        $('vstupSDPH').checked = z.sDph;
+        setRezim(z.rezim);
+        setMena(z.mena);
+        aktualizujAktivniPreset();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast('Kalkulace načtena');
+    }
+
+    function smazZaznam(index) {
+        obchodniHistorie.splice(index, 1);
+        store.set('emk_v2_obchodni', obchodniHistorie);
+        renderObchodni();
+    }
+
+    function renderObchodni() {
+        const box = $('obchodniHistorie');
+        box.textContent = '';
+        if (!obchodniHistorie.length) {
+            const prazdne = document.createElement('div');
+            prazdne.className = 'h-empty';
+            prazdne.textContent = 'Zatím žádné uložené kalkulace.';
+            box.appendChild(prazdne);
+            return;
+        }
+        obchodniHistorie.forEach((z, i) => {
+            const line = document.createElement('div');
+            line.className = 'h-line';
+
+            const main = document.createElement('button');
+            main.type = 'button';
+            main.className = 'h-main';
+            main.title = new Date(z.t).toLocaleString('cs-CZ') + ' – kliknutím načtete zpět do kalkulačky';
+            main.addEventListener('click', () => nactiZaznam(i));
+
+            const levy = document.createElement('span');
+            levy.textContent = `${formatCena(z.nakup, z.mena)} (${z.kusy} ks) · ${formatCislo(z.marze)} % ${z.rezim === 'marze' ? 'marže' : 'přirážka'}`;
+
+            const pravy = document.createElement('span');
+            pravy.append('1 ks bez DPH: ');
+            const b1 = document.createElement('b'); b1.textContent = formatCena(z.bezDphKus);
+            pravy.append(b1, ' | Celkem: ');
+            const b2 = document.createElement('b'); b2.textContent = formatCena(z.celkem);
+            pravy.append(b2);
+
+            main.append(levy, pravy);
+
+            const del = document.createElement('button');
+            del.type = 'button';
+            del.className = 'h-del';
+            del.textContent = '×';
+            del.setAttribute('aria-label', 'Smazat záznam');
+            del.addEventListener('click', () => smazZaznam(i));
+
+            line.append(main, del);
+            box.appendChild(line);
+        });
+    }
+
+    function exportCsv() {
+        if (!obchodniHistorie.length) { toast('Není co exportovat'); return; }
+        const hlavicka = ['Datum', 'Nákup', 'Měna', 'Kurz', 'Ks', 'Režim', 'Procenta', 'DPH %', 'Nákup s DPH', 'Prodej 1 ks bez DPH', 'Prodej 1 ks s DPH', 'Prodej celkem bez DPH', 'Zisk celkem'];
+        const radky = obchodniHistorie.map(z => [
+            new Date(z.t).toLocaleString('cs-CZ'), csvCislo(z.nakup), z.mena, csvCislo(z.kurz), z.kusy,
+            z.rezim === 'marze' ? 'Marže' : 'Přirážka', String(z.marze).replace('.', ','), z.dph, z.sDph ? 'ano' : 'ne',
+            csvCislo(z.bezDphKus), csvCislo(z.sDphKus), csvCislo(z.celkem), csvCislo(z.zisk)
+        ]);
+        const bunka = (v) => /[;"\n\r]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+        const csv = '﻿' + [hlavicka, ...radky].map(r => r.map(bunka).join(';')).join('\r\n');
+
+        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'emk-nacenovani-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    /* ================= BEZPEČNÝ PARSER VÝRAZŮ (bez eval / Function) ================= */
+    function tokenizuj(s) {
+        const tokeny = [];
+        const re = /(\d+\.?\d*|\.\d+)|([-+*/()%])/y;
+        let m;
+        while (re.lastIndex < s.length) {
+            m = re.exec(s);
+            if (!m) throw new Error('Neplatný znak');
+            tokeny.push(m[1] !== undefined ? parseFloat(m[1]) : m[2]);
+        }
+        return tokeny;
+    }
+
+    function vyhodnot(vyraz) {
+        const t = tokenizuj(vyraz);
+        let i = 0;
+        const dalsi = () => t[i];
+
+        // + a − s procentem na pravé straně počítají % z levé strany (100 + 10 % = 110)
+        function vyraz_() {
+            let levy = clen().v;
+            while (dalsi() === '+' || dalsi() === '-') {
+                const op = t[i++];
+                const p = clen();
+                const pravy = p.pct ? levy * p.v : p.v;
+                levy = op === '+' ? levy + pravy : levy - pravy;
+            }
+            return levy;
+        }
+        function clen() {
+            let f = cinitel();
+            let v = f.v, pct = f.pct;
+            while (dalsi() === '*' || dalsi() === '/') {
+                const op = t[i++];
+                const p = cinitel();
+                if (op === '/' && p.v === 0) throw new Error('Dělení nulou');
+                v = op === '*' ? v * p.v : v / p.v;
+                pct = false;
+            }
+            return { v, pct };
+        }
+        function cinitel() {
+            if (dalsi() === '-') { i++; const f = cinitel(); return { v: -f.v, pct: f.pct }; }
+            if (dalsi() === '+') { i++; return cinitel(); }
+            let uzel = zaklad();
+            while (dalsi() === '%') { i++; uzel = { v: uzel.v / 100, pct: true }; }
+            return uzel;
+        }
+        function zaklad() {
+            const x = t[i++];
+            if (typeof x === 'number') return { v: x, pct: false };
+            if (x === '(') {
+                const v = vyraz_();
+                if (t[i++] !== ')') throw new Error('Chybí závorka');
+                return { v, pct: false };
+            }
+            throw new Error('Neplatný výraz');
+        }
+
+        const vysledek = vyraz_();
+        if (i < t.length) throw new Error('Neplatný výraz');
+        if (!isFinite(vysledek) || Math.abs(vysledek) >= 1e15) throw new Error('Mimo rozsah');
+        return vysledek;
+    }
+
+    /* Připraví rozepsaný výraz k vyhodnocení: ořízne koncové operátory, doplní zavírací závorky */
+    function pripravVyraz(vyraz) {
+        let e = vyraz.replace(/[-+*/(]+$/, '');
+        const otevrene = (e.match(/\(/g) || []).length - (e.match(/\)/g) || []).length;
+        return e + ')'.repeat(Math.max(0, otevrene));
+    }
+
+    /* ================= POMOCNÁ KALKULAČKA ================= */
+    let calcExpr = '';
+    let aktualniLiveVysledek = null;
+    let pravePocitano = false;
+
+    const jeOperator = (c) => '+-*/'.includes(c) && c !== '';
+    const poslední = () => calcExpr.slice(-1);
+
+    function zacniNovyPoVysledku(zachovat) {
+        if (pravePocitano && !zachovat) calcExpr = '';
+        pravePocitano = false;
+    }
+
+    function appendNum(n) {
+        zacniNovyPoVysledku(false);
+        if (poslední() === ')' || poslední() === '%') calcExpr += '*';
+        let seg = calcExpr.match(/[\d.]*$/)[0];
+        if (n === '.') {
+            if (seg.includes('.')) return;
+            if (seg === '') n = '0.';
+        } else if (seg === '0') {
+            calcExpr = calcExpr.slice(0, -1);
+        }
+        calcExpr += n;
+        updateDisp();
+    }
+
+    function appendOp(op) {
+        zacniNovyPoVysledku(true);
+        if (calcExpr === '' || poslední() === '(') {
+            if (op !== '-') return;
+        } else if (jeOperator(poslední()) && !(op === '-' && '*/'.includes(poslední()))) {
+            while (jeOperator(poslední())) calcExpr = calcExpr.slice(0, -1);
+            if ((calcExpr === '' || poslední() === '(') && op !== '-') { updateDisp(); return; }
+        }
+        calcExpr += op;
+        updateDisp();
+    }
+
+    function appendParen(p) {
+        if (p === '(') {
+            zacniNovyPoVysledku(false);
+            if (/[\d.)%]$/.test(calcExpr)) calcExpr += '*';
+            calcExpr += '(';
+        } else {
+            zacniNovyPoVysledku(true);
+            const otevrene = (calcExpr.match(/\(/g) || []).length - (calcExpr.match(/\)/g) || []).length;
+            if (otevrene <= 0 || !/[\d.)%]$/.test(calcExpr)) return;
+            calcExpr += ')';
+        }
+        updateDisp();
+    }
+
+    function appendPercent() {
+        zacniNovyPoVysledku(true);
+        if (!/[\d.)%]$/.test(calcExpr)) return;
+        calcExpr += '%';
+        updateDisp();
+    }
+
+    function clearCalc() { calcExpr = ''; aktualniLiveVysledek = null; pravePocitano = false; updateDisp(); }
+    function deleteLast() { pravePocitano = false; calcExpr = calcExpr.slice(0, -1); updateDisp(); }
+
+    const hezkyVyraz = (e) => e.replace(/\*/g, '×').replace(/\//g, '÷').replace(/-/g, '−').replace(/\./g, ',');
+
+    function updateDisp() {
+        $('calc-text').textContent = calcExpr ? hezkyVyraz(calcExpr) : '0';
+        const live = $('calc-live-result');
+        aktualniLiveVysledek = null;
+        live.textContent = ' ';
+        if (!calcExpr) return;
+
+        try {
+            const priprava = pripravVyraz(calcExpr);
+            if (!priprava) return;
+            const res = vyhodnot(priprava);
+            aktualniLiveVysledek = res;
+            // neukazuj duplicitně výsledek, když je výraz jen samotné číslo
+            if (!/^-?[\d.]+$/.test(calcExpr)) live.textContent = '= ' + formatCislo(res);
+        } catch (e) { /* rozepsaný výraz – bez náhledu */ }
+    }
+
+    function calculateAndArchive() {
+        if (!calcExpr) return;
+        try {
+            const priprava = pripravVyraz(calcExpr);
+            const res = vyhodnot(priprava);
+
+            calcHistorie.unshift({ expr: priprava, res });
+            calcHistorie = calcHistorie.slice(0, MAX_HISTORY);
+            store.set('emk_v2_calc', calcHistorie);
+            renderCalc();
+
+            let s = res.toFixed(8).replace(/\.?0+$/, '');
+            calcExpr = (s === '-0' || s === '') ? '0' : s;
+            pravePocitano = true;
+            updateDisp();
+        } catch (e) {
+            $('calc-text').textContent = 'Chyba';
+            $('calc-live-result').textContent = ' ';
+            calcExpr = '';
+            aktualniLiveVysledek = null;
+            pravePocitano = false;
+        }
+    }
+
+    function copyToPurchase() {
+        if (aktualniLiveVysledek === null) return;
+        $('nakupka').value = Number(aktualniLiveVysledek.toFixed(4));
+        vypocitej();
+        const d = $('display');
+        d.style.background = 'rgba(202, 30, 29, 0.1)';
+        setTimeout(() => d.style.background = '', 300);
+        toast('Přeneseno do nákupní ceny');
+    }
+
+    function renderCalc() {
+        const box = $('calcHistorie');
+        box.textContent = '';
+        if (!calcHistorie.length) {
+            const prazdne = document.createElement('div');
+            prazdne.className = 'h-empty';
+            prazdne.textContent = 'Páska je prázdná.';
+            box.appendChild(prazdne);
+            return;
+        }
+        calcHistorie.forEach((z) => {
+            const line = document.createElement('div');
+            line.className = 'h-line';
+
+            const main = document.createElement('button');
+            main.type = 'button';
+            main.className = 'h-main';
+            main.title = 'Kliknutím použijete výsledek v kalkulačce';
+            main.addEventListener('click', () => {
+                const s = z.res.toFixed(8).replace(/\.?0+$/, '');
+                calcExpr = (s === '-0' || s === '') ? '0' : s;
+                pravePocitano = true;
+                updateDisp();
+            });
+
+            const levy = document.createElement('span');
+            levy.style.color = 'var(--text-sec)';
+            levy.textContent = hezkyVyraz(z.expr) + ' =';
+            const pravy = document.createElement('b');
+            pravy.textContent = formatCislo(z.res);
+
+            main.append(levy, pravy);
+            line.appendChild(main);
+            box.appendChild(line);
+        });
+    }
+
+    function clearHistory(typ) {
+        if (typ === 'obchodni') {
+            if (obchodniHistorie.length && !confirm('Opravdu smazat celou historii nacenění?')) return;
+            obchodniHistorie = [];
+            store.set('emk_v2_obchodni', obchodniHistorie);
+            renderObchodni();
+        } else {
+            calcHistorie = [];
+            store.set('emk_v2_calc', calcHistorie);
+            renderCalc();
+        }
+    }
+
+    /* ================= KLÁVESNICE ================= */
+    function stiskni(key) {
+        if (/^[0-9.]$/.test(key)) appendNum(key);
+        else if ('+-*/'.includes(key) && key.length === 1) appendOp(key);
+        else if (key === '(' || key === ')') appendParen(key);
+        else if (key === '%') appendPercent();
+        else if (key === 'Enter') calculateAndArchive();
+        else if (key === 'Backspace') deleteLast();
+        else if (key === 'Escape') clearCalc();
+    }
+
+    const tlacitkaKlaves = new Map();
+    document.querySelectorAll('#calc-grid [data-key]').forEach(b => tlacitkaKlaves.set(b.dataset.key, b));
+
+    $('calc-grid').addEventListener('click', (e) => {
+        const b = e.target.closest('[data-key]');
+        if (b) stiskni(b.dataset.key);
+    });
+
+    window.addEventListener('keydown', (e) => {
+        const tag = e.target.tagName;
+        if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        let key = e.key;
+        if (key === ',' || key === 'Decimal') key = '.';
+        if (key === '=') key = 'Enter';
+        if (key === 'Delete') key = 'Escape';
+
+        // Enter/mezerník na fokusovaném tlačítku mimo klávesnici kalkulačky nechej jeho vlastní akci
+        if (tag === 'BUTTON' && (key === 'Enter' || key === ' ') && !e.target.closest('#calc-grid')) return;
+
+        const btn = tlacitkaKlaves.get(key);
+        if (!btn) return;
+        btn.classList.add('press');
+        setTimeout(() => btn.classList.remove('press'), 100);
+        stiskni(key);
+        e.preventDefault();
+    });
+
+    /* ================= MOTIV ================= */
+    function nastavMotiv(tmavy) {
+        document.body.setAttribute('data-theme', tmavy ? 'dark' : 'light');
+        $('t-icon').textContent = tmavy ? '☀️' : '🌙';
+    }
+
+    function toggleTheme() {
+        const tmavy = document.body.getAttribute('data-theme') !== 'dark';
+        nastavMotiv(tmavy);
+        try { localStorage.setItem('theme', tmavy ? 'dark' : 'light'); } catch (e) { /* ignoruj */ }
+    }
+
+    /* ================= START ================= */
+    window.addEventListener('DOMContentLoaded', () => {
+        let motiv = null;
+        try { motiv = localStorage.getItem('theme'); } catch (e) { /* ignoruj */ }
+        nastavMotiv(motiv ? motiv === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+        $('marze').value = settings.marze;
+        $('dphSazba').value = String(settings.dph);
+        $('vstupSDPH').checked = !!settings.sDph;
+        aktualizujAktivniPreset();
+        setRezim(settings.rezim);
+        setMena(settings.mena);
+
+        renderObchodni();
+        renderCalc();
+        updateDisp();
+        vypocitej();
+    });
+</script>
+</body>
+</html>
