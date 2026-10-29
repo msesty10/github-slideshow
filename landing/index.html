@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jana Lipová – weby pro malé firmy</title>
+<meta name="description" content="Portfolio freelance front-end vývojářky: návrh a programování webů pro malé firmy a kulturní projekty.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue: #1b2fd6;
+    --blue-deep: #1220a3;
+    --paper: #f4f2ff;
+    --paper-dim: #c9c6f5;
+    --signal: #ffd23f;
+    --gutter: clamp(1.25rem, 4vw, 3.5rem);
+    --display: "Anybody", "Arial Narrow", Arial, sans-serif;
+    --text: "Hanken Grotesk", system-ui, sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--blue);
+    color: var(--paper);
+    font: 400 1.125rem/1.6 var(--text);
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--signal); outline-offset: 4px; }
+  ::selection { background: var(--signal); color: var(--blue-deep); }
+
+  .wrap { padding-inline: var(--gutter); max-width: 96rem; margin-inline: auto; }
+
+  /* Top bar */
+  .bar {
+    display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+    padding-block: 1.5rem;
+    font-weight: 500;
+  }
+  .bar a { text-decoration: none; border-bottom: 1px solid var(--paper-dim); }
+  .bar a:hover { border-color: var(--signal); color: var(--signal); }
+
+  /* Hero: the one loud thing on the page */
+  .hero { padding-block: clamp(2rem, 8vw, 6rem) clamp(3rem, 8vw, 6rem); }
+  .name {
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: clamp(4.5rem, 19vw, 19rem);
+    line-height: .86;
+    letter-spacing: -.01em;
+    font-variation-settings: "wdth" var(--wdth, 110);
+    text-wrap: balance;
+  }
+  .name span { display: block; }
+  .lede {
+    margin: clamp(2rem, 5vw, 4rem) 0 0;
+    max-width: 34rem;
+    font-size: clamp(1.25rem, 2.2vw, 1.625rem);
+    line-height: 1.4;
+  }
+
+  /* Sections */
+  section { padding-block: clamp(3rem, 7vw, 6rem); border-top: 1px solid var(--paper-dim); }
+  h2 {
+    margin: 0 0 clamp(1.5rem, 4vw, 3rem);
+    font: 700 clamp(1.75rem, 3.5vw, 2.75rem)/1.1 var(--display);
+    font-variation-settings: "wdth" 120;
+  }
+
+  /* Work list */
+  .work { list-style: none; margin: 0; padding: 0; }
+  .work li + li { border-top: 1px solid rgba(201, 198, 245, .35); }
+  .work a {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.6fr) auto;
+    gap: 1rem 2rem;
+    align-items: baseline;
+    padding: 1.4rem var(--gutter);
+    margin-inline: calc(var(--gutter) * -1);
+    text-decoration: none;
+  }
+  .work a:hover, .work a:focus-visible { background: var(--paper); color: var(--blue-deep); }
+  .work a:focus-visible { outline-offset: -3px; outline-color: var(--blue-deep); }
+  .work .title { font: 700 clamp(1.4rem, 2.6vw, 2.1rem)/1.15 var(--display); font-variation-settings: "wdth" 115; }
+  .work .what { margin: 0; }
+  .work .year { font-variant-numeric: tabular-nums; }
+
+  /* About */
+  .about { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem clamp(2rem, 8vw, 8rem); }
+  .about p { margin: 0 0 1.25rem; max-width: 36rem; }
+  .about h3 { margin: 0 0 .5rem; font: 700 1.125rem/1.4 var(--text); }
+  .about dl { margin: 0; }
+  .about dd { margin: 0 0 1.5rem; max-width: 30rem; color: var(--paper-dim); }
+
+  /* Contact */
+  .contact a {
+    display: inline-block;
+    font: 800 clamp(1.75rem, 7.2vw, 6.5rem)/1 var(--display);
+    font-variation-settings: "wdth" 110;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    border-bottom: .08em solid var(--signal);
+  }
+  .contact a:hover { color: var(--signal); }
+  .contact p { max-width: 34rem; margin: 0 0 2rem; }
+
+  footer { padding-block: 2rem 3rem; color: var(--paper-dim); font-size: 1rem; }
+
+  @media (max-width: 760px) {
+    .work a { grid-template-columns: 1fr auto; }
+    .work .what { grid-column: 1 / -1; grid-row: 2; }
+    .about { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="bar">
+      <span>Jana Lipová, Brno</span>
+      <a href="#kontakt">jana@example.cz</a>
+    </header>
+
+    <main>
+      <div class="hero">
+        <h1 class="name" id="name"><span>Jana</span><span>Lipová</span></h1>
+        <p class="lede">Navrhuju a programuju weby pro malé firmy a kulturní projekty. Píšete si přímo s tím, kdo je dělá.</p>
+      </div>
+
+      <section id="prace" aria-labelledby="prace-h">
+        <h2 id="prace-h">Vybrané weby</h2>
+        <ul class="work">
+          <li><a href="#kontakt">
+            <span class="title">Mlékárna Vysočina</span>
+            <p class="what">E-shop s rezervací čerstvých produktů na konkrétní den vyzvednutí.</p>
+            <span class="year">2025</span>
+          </a></li>
+          <li><a href="#kontakt">
+            <span class="title">Cyklo Sever</span>
+            <p class="what">Web půjčovny kol s mapou tras, které se dají stáhnout do navigace.</p>
+            <span class="year">2025</span>
+          </a></li>
+          <li><a href="#kontakt">
+            <span class="title">Tichý příběh</span>
+            <p class="what">Web nezávislého divadla s programem a prodejem vstupenek bez registrace.</p>
+            <span class="year">2024</span>
+          </a></li>
+          <li><a href="#kontakt">
+            <span class="title">Daňový kalendář</span>
+            <p class="what">Malá aplikace pro OSVČ, která připomíná termíny plateb a podání.</p>
+            <span class="year">2024</span>
+          </a></li>
+        </ul>
+      </section>
+
+      <section id="o-mne" aria-labelledby="o-mne-h">
+        <h2 id="o-mne-h">Jak pracuju</h2>
+        <div class="about">
+          <div>
+            <p>Začínám rozhovorem o tom, co má web zákazníkům usnadnit. Teprve potom kreslím a programuju.</p>
+            <p>Weby jsou rychlé, čitelné na malém telefonu a jdou je upravovat bez programátora. Po spuštění zůstávám po ruce, když je potřeba něco změnit.</p>
+          </div>
+          <dl>
+            <dt><h3>Návrh a prototyp</h3></dt>
+            <dd>Struktura stránek, texty a vzhled. Prototyp si můžete proklikat dřív, než se začne programovat.</dd>
+            <dt><h3>Vývoj</h3></dt>
+            <dd>HTML, CSS a JavaScript bez zbytečných závislostí. Web se načte rychle i na slabším připojení.</dd>
+            <dt><h3>Správa po spuštění</h3></dt>
+            <dd>Drobné úpravy, zálohy a aktualizace za pevnou měsíční cenu.</dd>
+          </dl>
+        </div>
+      </section>
+
+      <section id="kontakt" class="contact" aria-labelledby="kontakt-h">
+        <h2 id="kontakt-h">Napište mi o svém webu</h2>
+        <p>Stačí pár vět: čím se zabýváte a co by měl web umět. Odpovím do dvou pracovních dnů.</p>
+        <a href="mailto:jana@example.cz">jana@example.cz</a>
+      </section>
+    </main>
+
+    <footer>© 2026 Jana Lipová</footer>
+  </div>
+
+  <script>
+    // The surname and first name stretch with the pointer: far left is narrow, far right is wide.
+    // One intro sweep on load, then it follows the pointer. Static when reduced motion is requested.
+    (function () {
+      var el = document.getElementById('name');
+      var calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var MIN = 50, MAX = 150, REST = 110;
+      var cur = calm ? REST : MIN, target = REST, raf = null;
+
+      function apply() { el.style.setProperty('--wdth', cur.toFixed(1)); }
+      function tick() {
+        cur += (target - cur) * 0.08;
+        if (Math.abs(target - cur) < 0.1) { cur = target; raf = null; } else { raf = requestAnimationFrame(tick); }
+        apply();
+      }
+      function go() { if (!raf) raf = requestAnimationFrame(tick); }
+
+      apply();
+      if (calm) return;
+      go();
+      window.addEventListener('pointermove', function (e) {
+        target = MIN + (MAX - MIN) * Math.min(Math.max(e.clientX / window.innerWidth, 0), 1);
+        go();
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>
